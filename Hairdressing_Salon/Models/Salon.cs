@@ -27,7 +27,7 @@ namespace Hairdressing_Salon.Models
         
         public async Task DeleteReservation(Reservation reservation) 
         {
-            _reservationBook.DeleteReservation(reservation);
+            await _reservationBook.DeleteReservation(reservation);
         }
 
     }

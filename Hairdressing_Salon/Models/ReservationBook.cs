@@ -37,12 +37,12 @@ namespace Hairdressing_Salon.Models
                 throw new ReservationConflictException(conflictionReservation, reservation);
             }
          
-            _reservationCreator.CreateReservation(reservation);
+            await _reservationCreator.CreateReservation(reservation);
         }
 
         internal async Task DeleteReservation(Reservation reservation)
         {
-            _reservationCreator.DeleteReservation(reservation);
+            await _reservationCreator.DeleteReservation(reservation);
         }
     }
 }

@@ -84,6 +84,7 @@ namespace Hairdressing_Salon.ViewModels
             {
                 ReservationViewModel reservationViewModel = new ReservationViewModel(reservation);
                 var DateCombineWithTime = reservationViewModel.Date.Add(reservationViewModel.Time);
+
                 if (DateCombineWithTime >  DateTime.Now) 
                     _reservation.Add(reservationViewModel);
             }

@@ -37,7 +37,7 @@ namespace Hairdressing_Salon.Stores
         }
         public async Task DeleteReservation(ReservationListingViewModel viewModel)
         {
-            var reservation = new Reservation(viewModel.SelectedReservation.UserName, "", viewModel.SelectedReservation.Date,
+            var reservation = new Reservation(viewModel.SelectedReservation.UserName, viewModel.SelectedReservation.PhoneNumber, viewModel.SelectedReservation.Date,
                 viewModel.SelectedReservation.Time, new Service(viewModel.SelectedReservation.ServiceType, viewModel.SelectedReservation.Price));
             await _salon.DeleteReservation(reservation);
 

@@ -45,7 +45,7 @@ namespace Hairdressing_Salon.Commands
             return !string.IsNullOrEmpty(_makeReservationViewModel.UserName) &&
                 !string.IsNullOrEmpty(_makeReservationViewModel.PhoneNumber) &&
                 !string.IsNullOrEmpty(_makeReservationViewModel.ServiceType) &&   
-                (first_sentence || second_sentence);
+                (first_sentence || second_sentence) &&
                 base.CanExecute(parameter);
         }
 
