@@ -16,6 +16,7 @@ namespace Hairdressing_Salon.ViewModels
         public string ServiceType => _reservation.Service.Type;
         public int Price => _reservation.Service.Price;
         public TimeSpan Time => _reservation.Time;
+        public string PhoneNumber => _reservation.PhoneNumber;
         public ReservationViewModel(Reservation reservation)
         {
             _reservation = reservation;

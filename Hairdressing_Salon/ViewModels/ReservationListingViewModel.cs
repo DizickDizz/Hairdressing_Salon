@@ -39,12 +39,14 @@ namespace Hairdressing_Salon.ViewModels
         public ICommand LoadReservationCommand { get; } 
         public ICommand MakeReservationCommand { get; }
         public ICommand DeleteReservationCommand { get; }
+        public ICommand ReservationHistoryCommand { get; }
 
-        public ReservationListingViewModel(SalonStore salonStore, NavigationService MakeReservationNavigationService)
+        public ReservationListingViewModel(SalonStore salonStore, NavigationService<MakeReservationViewModel> MakeReservationNavigationService, NavigationService<ReservationHistoryViewModel> ReservationHistoryNavigationService)
         {
             _reservation = new ObservableCollection<ReservationViewModel>();
             _salonStore = salonStore;
-            MakeReservationCommand = new NavigateCommand(MakeReservationNavigationService);
+            MakeReservationCommand = new NavigateCommand<MakeReservationViewModel>(MakeReservationNavigationService);
+            ReservationHistoryCommand = new NavigateCommand<ReservationHistoryViewModel>(ReservationHistoryNavigationService);
             LoadReservationCommand = new LoadReservationCommand(salonStore, this);
             DeleteReservationCommand = new DeleteReservationCommand(salonStore, this);
 
@@ -63,9 +65,12 @@ namespace Hairdressing_Salon.ViewModels
             _reservation.Remove(itemToDelete);              
         }
 
-        public static ReservationListingViewModel LoadingViewModel(SalonStore salonStore, NavigationService MakeReservationNavigationService)
+        public static ReservationListingViewModel LoadViewModel(
+            SalonStore salonStore, 
+            NavigationService<MakeReservationViewModel> MakeReservationNavigationService,
+            NavigationService<ReservationHistoryViewModel> ReservationHistoryNavigationService)
         {
-            ReservationListingViewModel viewModel = new ReservationListingViewModel(salonStore, MakeReservationNavigationService);
+            ReservationListingViewModel viewModel = new ReservationListingViewModel(salonStore, MakeReservationNavigationService, ReservationHistoryNavigationService);
 
             viewModel.LoadReservationCommand.Execute(null);
 
@@ -78,7 +83,9 @@ namespace Hairdressing_Salon.ViewModels
             foreach (Reservation reservation in reservations)
             {
                 ReservationViewModel reservationViewModel = new ReservationViewModel(reservation);
-                _reservation.Add(reservationViewModel);
+                var DateCombineWithTime = reservationViewModel.Date.Add(reservationViewModel.Time);
+                if (DateCombineWithTime >  DateTime.Now) 
+                    _reservation.Add(reservationViewModel);
             }
         }
     }

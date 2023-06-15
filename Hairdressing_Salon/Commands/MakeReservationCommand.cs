@@ -15,14 +15,14 @@ using System.Windows.Controls;
 
 namespace Hairdressing_Salon.Commands
 {
-    public class MakeReservationCommand : AsyncCommandBase
+    public class MakeReservationCommand<TViewModel> : AsyncCommandBase where TViewModel : ViewModelBase
     {
         private readonly MakeReservationViewModel _makeReservationViewModel;
         private readonly SalonStore _salonStore;
-        private readonly NavigationService _navigationService;
+        private readonly NavigationService<TViewModel> _navigationService;
 
 
-        public MakeReservationCommand(MakeReservationViewModel makeReservationViewModel, SalonStore salonStore, NavigationService navigationService)
+        public MakeReservationCommand(MakeReservationViewModel makeReservationViewModel, SalonStore salonStore, NavigationService<TViewModel> navigationService)
         {
             _makeReservationViewModel = makeReservationViewModel;
             _salonStore = salonStore;
@@ -38,9 +38,14 @@ namespace Hairdressing_Salon.Commands
 
         public override bool CanExecute(object? parameter)
         {
+            DateTime date = _makeReservationViewModel.Date;
+            TimeSpan time = _makeReservationViewModel.Time;
+            bool first_sentence = (date.Date == DateTime.Now.Date) && (time >= DateTime.Now.TimeOfDay);
+            bool second_sentence = (date.Date > DateTime.Now.Date);
             return !string.IsNullOrEmpty(_makeReservationViewModel.UserName) &&
                 !string.IsNullOrEmpty(_makeReservationViewModel.PhoneNumber) &&
-                !string.IsNullOrEmpty(_makeReservationViewModel.ServiceType) &&     
+                !string.IsNullOrEmpty(_makeReservationViewModel.ServiceType) &&   
+                (first_sentence || second_sentence);
                 base.CanExecute(parameter);
         }
 

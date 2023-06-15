@@ -35,7 +35,7 @@ namespace Hairdressing_Salon.Commands
 
         public override async Task ExecuteAsync(object? parameter)
         {
-            _salonStore.DeleteReservation(_viewModel);
+            await _salonStore.DeleteReservation(_viewModel);
         }
     }
 }

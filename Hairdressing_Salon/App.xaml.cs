@@ -8,6 +8,9 @@ using Hairdressing_Salon.Services.ReservationProviders;
 using Hairdressing_Salon.Stores;
 using Hairdressing_Salon.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -24,49 +27,84 @@ namespace Hairdressing_Salon
     /// </summary>
     public partial class App : Application
     {
-        private readonly Salon _salon;
-        private readonly NavigationStore _navigationStore;
-        private readonly SalonStore _salonStore;
-        private readonly SalonDBContextFactory _salonDesignTimeDbContextFactory;
-        private const string CONNECTION_STRING = "Data Source=salon.db";
+        private readonly IHost _host;
         public App()
         {
-            _salonDesignTimeDbContextFactory = new SalonDBContextFactory(CONNECTION_STRING);
-            IReservationPrivider reservationPrivider = new DataBaseReservationProdiver(_salonDesignTimeDbContextFactory);
-            IReservationCreator reservationCreator = new DataBaseReservationCreater(_salonDesignTimeDbContextFactory);
-            IReservationConflictValidator reservationConflictValidator = new DataBaseReservationConflictValidator(_salonDesignTimeDbContextFactory);
-            ReservationBook reservationBook = new ReservationBook(reservationPrivider, reservationCreator, reservationConflictValidator);
-            _salon = new Salon(reservationBook);
-            _salonStore = new(_salon);
-            _navigationStore = new NavigationStore(); 
+            _host = Host.CreateDefaultBuilder()
+                .ConfigureAppConfiguration((c) =>
+                {
+                    c.AddJsonFile("appsettings.json");
+                })
+                .ConfigureServices((hostContext, services) =>
+                {
+                    string connectionString = hostContext.Configuration.GetConnectionString("Default");
+
+                    services.AddSingleton(new SalonDBContextFactory(connectionString));
+                    services.AddSingleton<IReservationPrivider, DataBaseReservationProdiver>();
+                    services.AddSingleton<IReservationCreator, DataBaseReservationCreater>();
+                    services.AddSingleton<IReservationConflictValidator, DataBaseReservationConflictValidator>();
+
+                    services.AddSingleton<ReservationBook>();
+                    services.AddSingleton<Salon>();
+
+                    services.AddTransient((s) => CreateReservationListingViewModel(s));
+                    services.AddSingleton<Func<ReservationListingViewModel>>((s) => () => s.GetRequiredService<ReservationListingViewModel>());
+                    services.AddSingleton<NavigationService<ReservationListingViewModel>>();
+
+                    services.AddTransient<MakeReservationViewModel>();
+                    services.AddSingleton<Func<MakeReservationViewModel>>((s) => () => s.GetRequiredService<MakeReservationViewModel>());
+                    services.AddSingleton<NavigationService<MakeReservationViewModel>>();
+
+                    services.AddTransient<ReservationHistoryViewModel>();
+                    services.AddSingleton<Func<ReservationHistoryViewModel>>((s) => () => s.GetRequiredService<ReservationHistoryViewModel>());
+                    services.AddSingleton<NavigationService<ReservationHistoryViewModel>>();
+
+                    services.AddSingleton<SalonStore>();
+                    services.AddSingleton<NavigationStore>();
+
+                    services.AddSingleton<MainViewModel>();
+                    services.AddSingleton(s => new MainWindow()
+                    {
+                        DataContext = s.GetRequiredService<MainViewModel>()
+                    });
+                })
+                .Build();
+        }
+
+        private ReservationListingViewModel CreateReservationListingViewModel(IServiceProvider s)
+        {
+            return ReservationListingViewModel.LoadViewModel(
+                s.GetRequiredService<SalonStore>(),
+                s.GetRequiredService<NavigationService<MakeReservationViewModel>>(),
+                s.GetRequiredService<NavigationService<ReservationHistoryViewModel>>()); 
         }
 
         protected override void OnStartup(StartupEventArgs e)
-            {
-            using (SalonDbContext dbContext = _salonDesignTimeDbContextFactory.CreateDbContext())
+        {
+            _host.Start();
+
+            SalonDBContextFactory salonDBContextFactory = _host.Services.GetRequiredService<SalonDBContextFactory>();
+
+            using (SalonDbContext dbContext = salonDBContextFactory.CreateDbContext())
             {
                 dbContext.Database.Migrate();
 
             }
 
+            NavigationService<ReservationListingViewModel> navigationService = _host.Services.GetRequiredService<NavigationService<ReservationListingViewModel>>();
+            navigationService.Navigate();
 
-            _navigationStore.CurrentViewModel = CreateReservationViewModel();
-            MainWindow = new MainWindow()
-            {
-                DataContext = new MainViewModel(_navigationStore)
-            };
+            MainWindow = _host.Services.GetRequiredService<MainWindow>();
             MainWindow.Show();
+
             base.OnStartup(e);
         }
 
-        private MakeReservationViewModel CreateMakeReservationViewModel()
+        protected override void OnExit(ExitEventArgs e)
         {
-            return new MakeReservationViewModel(_salonStore, new NavigationService(_navigationStore, CreateReservationViewModel));
-        }
-
-        private ReservationListingViewModel CreateReservationViewModel()
-        {
-            return ReservationListingViewModel.LoadingViewModel(_salonStore, new NavigationService(_navigationStore, CreateMakeReservationViewModel)  );
+            _host?.Dispose();
+             
+            base.OnExit(e);
         }
     }
 }

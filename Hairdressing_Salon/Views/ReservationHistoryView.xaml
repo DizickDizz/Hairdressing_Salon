@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="Hairdressing_Salon.Views.ReservationListingView"
+﻿<UserControl x:Class="Hairdressing_Salon.Views.ReservationHistoryView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -8,7 +8,6 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
@@ -21,43 +20,26 @@
 
             <Button 
                 Grid.Column="0" 
-                Content="История заказов" 
+                Content="Назад" 
                 VerticalAlignment="Bottom"
-                Command="{Binding ReservationHistoryCommand}"
+                Command="{Binding BackCommand}"
                 FontSize="18" 
                 Margin="10 10 0 0"/>
-            <Button 
-                Grid.Column="1" 
-                Content="+" 
-                FontSize="18" 
-                HorizontalAlignment="Right" 
-              
-                Command="{Binding MakeReservationCommand}"
-                Margin="0 10 10 0"/>
         </Grid>
         <Grid Grid.Row="0">
             <DataGrid 
                 AutoGenerateColumns="False" 
                 ItemsSource="{Binding Reservations}"
-                CanUserDeleteRows="False"
-                SelectedItem="{Binding SelectedReservation, Mode=TwoWay}">
+                CanUserDeleteRows="False">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header ="ФИО" Binding="{Binding UserName, Mode=OneWay}"></DataGridTextColumn>
-                    <DataGridTextColumn Header ="Дата" Binding="{Binding Date, Mode=OneWay,StringFormat=d}"></DataGridTextColumn>
+                    <DataGridTextColumn Header ="Дата" Binding="{Binding Date, Mode=OneWay, StringFormat=d}"></DataGridTextColumn>
                     <DataGridTextColumn Header ="Время" Binding="{Binding Time, Mode=OneWay, StringFormat=hh\\:mm}"></DataGridTextColumn>
                     <DataGridTextColumn Header ="Услуга" Binding="{Binding ServiceType, Mode=OneWay}"></DataGridTextColumn>
                     <DataGridTextColumn Header ="Цена" Binding="{Binding Price, Mode=OneWay}"></DataGridTextColumn>
                     <DataGridTextColumn Header ="Номер телефона" Binding="{Binding PhoneNumber, Mode=OneWay}"></DataGridTextColumn>
-                    <DataGridTemplateColumn>
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <Button Content="Х" FontSize="20" FontWeight="Bold" Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}, Path=DataContext.DeleteReservationCommand}" CommandParameter="{Binding}" />
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>
     </Grid>
-
 </UserControl>

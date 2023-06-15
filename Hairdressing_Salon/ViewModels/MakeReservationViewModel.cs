@@ -2,8 +2,11 @@
 using Hairdressing_Salon.Models;
 using Hairdressing_Salon.Services;
 using Hairdressing_Salon.Stores;
+using Hairdressing_Salon.Views;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -78,7 +81,9 @@ namespace Hairdressing_Salon.ViewModels
                 OnPropertyChanged(nameof(Price));
             }
         }
-        private TimeSpan _time;
+        private TimeSpan _time = DateTime.Now.TimeOfDay;
+
+
         public TimeSpan Time
         {
             get
@@ -95,10 +100,11 @@ namespace Hairdressing_Salon.ViewModels
         public ICommand SubmitCommand { get; }
         public ICommand CancelCommand { get; }
 
-        public MakeReservationViewModel(SalonStore salonStore, NavigationService reservationViewNavigationService)
+
+        public MakeReservationViewModel(SalonStore salonStore, NavigationService<ReservationListingViewModel> reservationViewNavigationService)
         {
-            SubmitCommand = new MakeReservationCommand(this, salonStore, reservationViewNavigationService);
-            CancelCommand = new NavigateCommand(reservationViewNavigationService);
+            SubmitCommand = new MakeReservationCommand<ReservationListingViewModel>(this, salonStore, reservationViewNavigationService);
+            CancelCommand = new NavigateCommand<ReservationListingViewModel>(reservationViewNavigationService);
         }
     }
 }

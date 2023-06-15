@@ -25,7 +25,7 @@ namespace Hairdressing_Salon.Commands
         {
             try
             {
-                _salonStore.Load();
+                await _salonStore.Load();
 
                 _viewModel.UpdateReservations(_salonStore.Reservations);
             }
